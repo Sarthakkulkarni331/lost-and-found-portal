@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Admin Dashboard - L & F Portal</title>
+
+  <!-- Bootstrap -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+  <!-- SweetAlert2 -->
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/10.5.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.5.0/firebase-auth-compat.js"></script>
+
+  <style>
+    body {
+      background: #f4f6f9;
+      padding: 40px;
+      font-family: 'Segoe UI', sans-serif;
+    }
+
+    .table-responsive {
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      background: white;
+      border-radius: 12px;
+      padding: 20px;
+    }
+
+    .logout-btn {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <button class="btn btn-danger logout-btn" onclick="logout()">
+      <i class="fas fa-sign-out-alt"></i> Logout
+    </button>
+
+    <h2 class="mb-4 text-center">📋 All Reported Lost & Found Items</h2>
+
+    <div class="table-responsive">
+      <table class="table table-bordered table-hover">
+        <thead class="table-dark">
+          <tr>
+            <th>ID</th>
+            <th>Type</th>
+            <th>Title</th>
+            <th>Description</th>
+            <th>Date</th>
+            <th>Location</th>
+            <th>Contact</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody id="itemsTable">
+          <!-- Data will be inserted by JS -->
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- JS: Firebase + Logic -->
+  <script>
+    // Paste your Firebase config here
+    const firebaseConfig = {
+  apiKey: "AIzaSyDEqcaKo4QopOZY4XNoiXopKW5RgIZO_o4",  // ✅ Correct key
+  authDomain: "lostandfoundportal-5fe81.firebaseapp.com",
+  projectId: "lostandfoundportal-5fe81",
+  storageBucket: "lostandfoundportal-5fe81.appspot.com",  // also fix the domain here
+  messagingSenderId: "572751106588",
+  appId: "1:572751106588:web:e3dff120fc5efffcac45d9",
+  measurementId: "G-NDXTM9N4VS"
+};
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+
+    // Allow only logged-in admin to access this page
+    auth.onAuthStateChanged((user) => {
+      if (user && user.email === "admin1345@gmail.com") {
+        loadItems(); // Load data after verification
+      } else {
+        Swal.fire({
+          icon: 'error',
+          title: 'Access Denied',
+          text: 'You are not authorized to access this page'
+        }).then(() => {
+          window.location.href = 'admin-login.html';
+        });
+      }
+    });
+
+    function logout() {
+      auth.signOut().then(() => {
+        window.location.href = "index.html";
+      });
+    }
+
+    // Fetch all items from backend
+    function loadItems() {
+      fetch('/api/items/all')
+        .then(response => response.json())
+        .then(data => {
+          const table = document.getElementById("itemsTable");
+          table.innerHTML = "";
+
+          data.forEach(item => {
+            const row = document.createElement("tr");
+            row.innerHTML = `
+              <td>${item.id}</td>
+              <td>${item.type}</td>
+              <td>${item.itemName}</td>
+              <td>${item.description}</td>
+              <td>${item.date}</td>
+              <td>${item.location}</td>
+              <td>${item.contact}</td>
+              <td>
+                <button class="btn btn-danger btn-sm" onclick="deleteItem(${item.id})">
+                  <i class="fas fa-trash"></i>
+                </button>
+              </td>
+            `;
+            table.appendChild(row);
+          });
+        });
+    }
+
+    // Delete item
+    function deleteItem(id) {
+  Swal.fire({
+    title: 'Are you sure?',
+    text: "This item will be deleted permanently.",
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonColor: '#d33',
+    cancelButtonColor: '#3085d6',
+    confirmButtonText: 'Yes, delete it!'
+  }).then((result) => {
+    if (result.isConfirmed) {
+      fetch(`/api/items/delete/${id}`, {
+        method: 'DELETE'
+      })
+      .then(response => {
+        if (response.ok) {
+          Swal.fire('Deleted!', 'The item has been removed.', 'success');
+          loadItems(); // Refresh table
+        } else {
+          Swal.fire('Error', 'Could not delete the item.', 'error');
+        }
+      });
+    }
+  });
+}
+
+  </script>
+
+  <!-- Bootstrap JS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
