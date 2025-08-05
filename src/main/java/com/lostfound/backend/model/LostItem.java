@@ -1,4 +1,4 @@
-// File: com.lostfound.backend.model.LostItem.java
+
 
 package com.lostfound.backend.model;
 
@@ -10,14 +10,14 @@ public class LostItem {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private String type; // "Lost" or "Found"
+    private String type;
     private String itemName;
     private String description;
     private String location;
     private String date;
     private String contact;
 
-    // Getters and Setters
+
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
 

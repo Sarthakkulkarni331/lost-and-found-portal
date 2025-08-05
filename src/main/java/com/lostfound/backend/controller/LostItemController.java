@@ -1,4 +1,4 @@
-// File: com.lostfound.backend.controller.LostItemController.java
+
 
 package com.lostfound.backend.controller;
 
@@ -17,19 +17,19 @@ public class LostItemController {
     @Autowired
     private LostItemRepository lostItemRepository;
 
-    // Add new item (from user form)
+
     @PostMapping("/add")
     public LostItem addItem(@RequestBody LostItem item) {
         return lostItemRepository.save(item);
     }
 
-    // View all items (for admin only)
+
     @GetMapping("/all")
     public List<LostItem> getAllItems() {
         return lostItemRepository.findAll();
     }
 
-    // Delete item by ID (for admin)
+
     @DeleteMapping("/delete/{id}")
     public void deleteItem(@PathVariable Long id) {
         lostItemRepository.deleteById(id);

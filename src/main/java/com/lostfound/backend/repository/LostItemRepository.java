@@ -1,4 +1,3 @@
-// File: com.lostfound.backend.repository.LostItemRepository.java
 
 package com.lostfound.backend.repository;
 
